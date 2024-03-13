@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: vikasbagri
+      POSTGRES_PASSWORD: vikasbagri
+      PGDATA: /data/postgres
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5431:5432"
+    networks:
+      - db
+    restart: unless-stopped
+
+networks:
+  db:
+    driver: bridge
+
+volumes:
+  db:
