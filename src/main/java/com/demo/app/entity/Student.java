@@ -1,10 +1,7 @@
 package com.demo.app.entity;
 
 import com.demo.app.dto.StudentRegistrationData;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,13 +12,30 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(
+        name = "student",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "email_unique", columnNames = {"email"})
+        }
+)
 public class Student {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(
+            name = "student_id_seq_generator",
+            sequenceName = "student_id_seq",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "student_id_seq_generator"
+    )
     private Long id;
+    @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
     private String email;
+    @Column(nullable = false)
     private Integer age;
 
     public Student(String name, String email, Integer age) {

@@ -2,13 +2,14 @@ package com.demo.app;
 
 import com.demo.app.entity.Student;
 import com.demo.app.repository.StudentRepository;
+import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.util.List;
+import java.util.Random;
 
 @SpringBootApplication
 public class DemoAppApplication {
@@ -25,9 +26,16 @@ public class DemoAppApplication {
 		return new CommandLineRunner() {
 			@Override
 			public void run(String... args) throws Exception {
-				Student student1 = new Student("vikas", "vikas@test.com", 22);
-				Student student2 = new Student("bikas", "bikas@test.com", 25);
-				studentRepository.saveAll(List.of(student1, student2));
+				Faker faker = new Faker();
+				String firstName = faker.name().firstName();
+				String lastName = faker.name().lastName();
+				Random random = new Random();
+				Student student = new Student(
+						firstName + " " + lastName,
+						firstName + "." + lastName + "@test.com",
+						random.nextInt(21, 89)
+				);
+				studentRepository.save(student);
 			}
 		};
 	}
