@@ -5,6 +5,7 @@ import com.demo.app.dto.StudentRegistrationData;
 import com.demo.app.entity.Student;
 import com.demo.app.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 public class StudentController {
 
     @Autowired
+    @Qualifier("studentServiceJPA")
     private StudentService studentService;
 
     @PostMapping
