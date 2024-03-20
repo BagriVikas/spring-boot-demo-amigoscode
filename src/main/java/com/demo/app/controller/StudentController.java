@@ -4,19 +4,17 @@ import com.demo.app.dto.StudentDataUpdate;
 import com.demo.app.dto.StudentRegistrationData;
 import com.demo.app.entity.Student;
 import com.demo.app.service.StudentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/students")
 public class StudentController {
 
-    @Autowired
-    @Qualifier("studentServiceJPA")
-    private StudentService studentService;
+    private final StudentService studentService;
 
     @PostMapping
     public Long saveStudent(@RequestBody StudentRegistrationData studentRegistrationData) {

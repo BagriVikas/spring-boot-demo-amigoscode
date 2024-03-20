@@ -1,7 +1,8 @@
 package com.demo.app;
 
+import com.demo.app.dto.StudentRegistrationData;
 import com.demo.app.entity.Student;
-import com.demo.app.repository.StudentRepository;
+import com.demo.app.service.StudentService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +16,7 @@ import java.util.Random;
 public class DemoAppApplication {
 
 	@Autowired
-	private StudentRepository studentRepository;
+	private StudentService studentService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemoAppApplication.class, args);
@@ -35,7 +36,7 @@ public class DemoAppApplication {
 						firstName + "." + lastName + "@test.com",
 						random.nextInt(21, 89)
 				);
-				studentRepository.save(student);
+				studentService.saveStudent(new StudentRegistrationData(student.getName(), student.getEmail(), student.getAge()));
 			}
 		};
 	}

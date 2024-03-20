@@ -1,4 +1,4 @@
-package com.demo.app.repository;
+package com.demo.app.dao;
 
 import com.demo.app.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
