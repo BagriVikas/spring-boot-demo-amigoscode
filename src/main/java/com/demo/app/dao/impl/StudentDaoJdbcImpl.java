@@ -2,8 +2,6 @@ package com.demo.app.dao.impl;
 
 import com.demo.app.dao.StudentDAO;
 import com.demo.app.entity.Student;
-import com.demo.app.exception.ResourceAlreadyExistsException;
-import com.demo.app.exception.ResourceNotFoundException;
 import com.demo.app.jdbc.utils.StudentRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -11,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -22,44 +21,47 @@ public class StudentDaoJdbcImpl implements StudentDAO {
     private final StudentRowMapper studentRowMapper;
 
     @Override
-    public Long saveStudent(Student student) {
+    public void saveStudent(Student student) {
 
         String sql = """
                 INSERT INTO student( name, email, age )
                 VALUES( ?, ?, ? )
                 """;
         jdbcTemplate.update(sql, student.getName(), student.getEmail(), student.getAge());
-        return 1L; // returning random value
     }
 
     @Override
-    public Student getStudent(Long id) {
-        return checkForStudent(id);
+    public Optional<Student> getStudent(Long id) {
+
+        String sql = """
+                SELECT id, name, email, age FROM student
+                WHERE id = ?
+                """;
+        List<Student> students = jdbcTemplate.query(sql, studentRowMapper, id);
+        return students.stream()
+                .filter(student -> student.getId() == id)
+                .findFirst();
+
     }
 
     @Override
-    public Long updateStudent(Student student) {
-
-        boolean hasChanges = false;
+    public void updateStudent(Student student) {
 
         String sql = """
                 UPDATE student
                 SET name = ?, email = ?, age = ?
                 WHERE id = ?
                 """;
-
         jdbcTemplate.update(sql, student.getName(), student.getEmail(), student.getAge(), student.getId());
 
-        return 1L; // garbage value
     }
 
     @Override
-    public String deleteStudent(Student student) {
+    public void deleteStudent(Long id) {
         String sql = """
                 DELETE FROM student WHERE id = ?
                 """;
-        jdbcTemplate.update(sql, student.getId());
-        return "Student with id %s is deleted successfully".formatted(student.getId());
+        jdbcTemplate.update(sql, id);
     }
 
     @Override
@@ -71,31 +73,26 @@ public class StudentDaoJdbcImpl implements StudentDAO {
     }
 
     @Override
-    public void checkForEmail(String email) {
+    public boolean existsStudentWithEmail(String email) {
 
-        String checkEmailSql = """
+        String sql = """
                 SELECT COUNT( id ) FROM student
                 WHERE email = ?
                 """;
-        long count = jdbcTemplate.queryForObject(checkEmailSql, Long.class, email);
-        if (count > 0) {
-            throw new ResourceAlreadyExistsException("Email already taken");
-        }
+        long count = jdbcTemplate.queryForObject(sql, Long.class, email);
+        return count > 0;
 
     }
 
     @Override
-    public Student checkForStudent(Long id) {
+    public boolean existsStudentWithId(Long id) {
 
         String sql = """
                 SELECT id, name, email, age FROM student
                 WHERE id = ?
                 """;
         List<Student> students = jdbcTemplate.query(sql, studentRowMapper, id);
-        if (students.isEmpty()) {
-            throw new ResourceNotFoundException("Student with %s does not exist".formatted(id));
-        }
-        return students.get(0);
+        return !students.isEmpty();
 
     }
 

@@ -3,21 +3,22 @@ package com.demo.app.dao;
 import com.demo.app.entity.Student;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StudentDAO {
 
-    Long saveStudent(Student student);
+    void saveStudent(Student student);
 
-    Student getStudent(Long id);
+    Optional<Student> getStudent(Long id);
 
-    Long updateStudent(Student student);
+    void updateStudent(Student student);
 
-    String deleteStudent(Student student);
+    void deleteStudent(Long id);
 
     List<Student> getAllStudents();
 
-    void checkForEmail(String email);
+    boolean existsStudentWithEmail(String email);
 
-    Student checkForStudent(Long id);
+    boolean existsStudentWithId(Long id);
 
 }

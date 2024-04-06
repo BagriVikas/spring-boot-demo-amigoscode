@@ -3,12 +3,11 @@ package com.demo.app.dao.impl;
 import com.demo.app.dao.StudentDAO;
 import com.demo.app.dao.StudentRepository;
 import com.demo.app.entity.Student;
-import com.demo.app.exception.ResourceAlreadyExistsException;
-import com.demo.app.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -16,41 +15,37 @@ public class StudentDaoJpaImpl implements StudentDAO {
 
     private final StudentRepository studentRepository;
     @Override
-    public Long saveStudent(Student student) {
-        return studentRepository.save(student).getId();
+    public void saveStudent(Student student) {
+        studentRepository.save(student);
     }
 
     @Override
-    public Student getStudent(Long id) {
-        return checkForStudent(id);
+    public Optional<Student> getStudent(Long id) {
+        return studentRepository.findById(id);
     }
 
     @Override
-    public Long updateStudent(Student student) {
-        return studentRepository.save(student).getId();
+    public void updateStudent(Student student) {
+        studentRepository.save(student);
     }
 
     @Override
-    public String deleteStudent(Student student) {
-        studentRepository.delete(student);
-        return "Student deleted successfully";
+    public void deleteStudent(Long id) {
+        studentRepository.deleteById(id);
     }
 
     @Override
     public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+       return studentRepository.findAll();
     }
 
     @Override
-    public void checkForEmail(String email) {
-        Boolean emailExists = studentRepository.existsStudentByEmail(email);
-        if (emailExists) {
-            throw new ResourceAlreadyExistsException("Email already taken");
-        }
+    public boolean existsStudentWithEmail(String email) {
+        return studentRepository.existsStudentByEmail(email);
     }
 
     @Override
-    public Student checkForStudent(Long id) {
-        return studentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Student with id %s does not exist".formatted(id)));
+    public boolean existsStudentWithId(Long id) {
+        return studentRepository.existsById(id);
     }
 }

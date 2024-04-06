@@ -5,6 +5,8 @@ import com.demo.app.dto.StudentDataUpdate;
 import com.demo.app.dto.StudentRegistrationData;
 import com.demo.app.entity.Student;
 import com.demo.app.exception.NoChangesFoundException;
+import com.demo.app.exception.ResourceAlreadyExistsException;
+import com.demo.app.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +21,20 @@ public class StudentService {
 
     public Long saveStudent(StudentRegistrationData studentRegistrationData) {
 
-        studentDAO.checkForEmail(studentRegistrationData.email());
+        checkForEmail(studentRegistrationData.email());
         Student student = new Student(studentRegistrationData.name(), studentRegistrationData.email(), studentRegistrationData.age());
-        return studentDAO.saveStudent(student);
+        studentDAO.saveStudent(student);
+        return 1L;
 
     }
 
     public Student getStudent(Long id) {
-
-        Student student = studentDAO.checkForStudent(id);
-        return student;
-
+        return studentDAO.getStudent(id).orElseThrow(() -> new ResourceNotFoundException("Student does not exist"));
     }
 
     public Long updateStudent(Long id, StudentDataUpdate studentDataUpdate) {
 
-        Student student = studentDAO.checkForStudent(id);
+        Student student = studentDAO.getStudent(id).orElseThrow(() -> new ResourceNotFoundException("Student does not exist"));
         boolean hasChanges = false;
 
         if (Objects.nonNull(studentDataUpdate.name()) && !student.getName().equals(studentDataUpdate.name())) {
@@ -43,7 +43,10 @@ public class StudentService {
         }
 
         if (Objects.nonNull(studentDataUpdate.email()) && !student.getEmail().equals(studentDataUpdate.email())) {
-            studentDAO.checkForEmail(studentDataUpdate.email());
+            boolean existsStudentWithEmail = studentDAO.existsStudentWithEmail(studentDataUpdate.email());
+            if (existsStudentWithEmail) {
+                throw new ResourceAlreadyExistsException("Email already taken");
+            }
             student.setEmail(studentDataUpdate.email());
             hasChanges = true;
         }
@@ -57,19 +60,33 @@ public class StudentService {
             throw new NoChangesFoundException("No changes found");
         }
 
-        return studentDAO.updateStudent(student);
+        studentDAO.updateStudent(student);
+        return 1L;
 
     }
 
     public String deleteStudent(Long id) {
 
-        Student student = studentDAO.checkForStudent(id);
-        return studentDAO.deleteStudent(student);
+        boolean existsStudentWithId = studentDAO.existsStudentWithId(id);
+        if (!existsStudentWithId) {
+            throw new ResourceNotFoundException("Student does not exist");
+        }
+        studentDAO.deleteStudent(id);
+        return "Student deleted successfully";
 
     }
 
     public List<Student> getAllStudents() {
         return studentDAO.getAllStudents();
+    }
+
+    private void checkForEmail(String email) {
+
+        boolean existsStudentWithEmail = studentDAO.existsStudentWithEmail(email);
+        if (existsStudentWithEmail) {
+            throw new ResourceAlreadyExistsException("Email already taken");
+        }
+
     }
 
 }
