@@ -3,10 +3,6 @@ package com.demo.app;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 @SpringBootApplication
 public class DemoAppApplication {
 
@@ -15,9 +11,6 @@ public class DemoAppApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemoAppApplication.class, args);
-		List<Integer> list = new ArrayList<>();
-		list.remove(9);
-		Collections.sort(list);
 	}
 
 //	@Bean
